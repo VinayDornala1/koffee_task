@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:koffeekodes_task/user_list.dart';
 import 'create_team/create_team_cubit.dart';
 import 'create_team/create_team_state.dart';
 import 'dart:io';
@@ -620,7 +621,7 @@ class CreateTeamScreen extends StatelessWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('User created successfully')),
                               );
-                              Navigator.pop(context);
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>UserList()));
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Failed to create user: $e')),
