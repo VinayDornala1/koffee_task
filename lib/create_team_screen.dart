@@ -31,11 +31,110 @@ class CreateTeamScreen extends StatelessWidget {
     {'id': 6, 'name': 'Admin'},
   ];
 
+  String? _validateRequired(String? value, String fieldName) {
+    if (value == null || value.isEmpty) {
+      return '$fieldName is required';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email is required';
+    }
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Contact number is required';
+    }
+    final phoneRegex = RegExp(r'^[0-9]{10}$');
+    if (!phoneRegex.hasMatch(value.replaceAll(RegExp(r'[^0-9]'), ''))) {
+      return 'Please enter a valid 10-digit phone number';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters long';
+    }
+    return null;
+  }
+
+  String? _validatePinCode(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Pin code is required';
+    }
+    final pinRegex = RegExp(r'^[0-9]{6}$');
+    if (!pinRegex.hasMatch(value)) {
+      return 'Please enter a valid 6-digit pin code';
+    }
+    return null;
+  }
+
+  String? _validateNumeric(String? value, String fieldName) {
+    if (value == null || value.isEmpty) {
+      return '$fieldName is required';
+    }
+    if (int.tryParse(value) == null) {
+      return '$fieldName must be a number';
+    }
+    return null;
+  }
+
+  bool _validatePage0(CreateTeamState state) {
+    return _validateRequired(state.title, 'Title') == null &&
+        _validateRequired(state.firstName, 'First name') == null &&
+        _validateRequired(state.lastName, 'Last name') == null &&
+        _validateRequired(state.employeeId, 'Employee ID') == null &&
+        _validateEmail(state.email) == null &&
+        _validatePhone(state.contactNumber) == null &&
+        _validateRequired(state.gender, 'Gender') == null &&
+        _validateRequired(state.username, 'Username') == null &&
+        _validatePassword(state.password) == null &&
+        state.dob != null &&
+        _validateRequired(state.emergencyName, 'Emergency contact name') == null &&
+        _validatePhone(state.emergencyContact) == null &&
+        _validateRequired(state.emergencyRelation, 'Emergency relation') == null;
+  }
+
+  bool _validatePage1(CreateTeamState state) {
+    return _validateRequired(state.address, 'Address') == null &&
+        state.countryId != null &&
+        state.stateId != null &&
+        state.cityId != null &&
+        _validatePinCode(state.pinCode) == null &&
+        _validateRequired(state.designation, 'Designation') == null &&
+        _validateRequired(state.department, 'Department') == null &&
+        _validateNumeric(state.totalAssignedLeave, 'Total assigned leave') == null;
+  }
+
+  bool _validatePage2(CreateTeamState state) {
+    return state.joiningDate != null &&
+        _validateRequired(state.selectedTeam, 'Team') == null &&
+        state.roleId != null &&
+        _validateRequired(state.workRegion, 'Work region') == null &&
+        _validateRequired(state.shift, 'Shift') == null &&
+        state.imageId != null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(Icons.arrow_back),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text('Create new team'),
         elevation: 0,
         backgroundColor: Colors.white,
@@ -86,8 +185,10 @@ class CreateTeamScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      decoration:
-                          const InputDecoration(border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.title, 'Title'),
+                      ),
                       value: state.title,
                       hint: const Text('MR'),
                       items: const [
@@ -103,9 +204,11 @@ class CreateTeamScreen extends StatelessWidget {
                         Expanded(
                           child: TextFormField(
                             initialValue: state.firstName,
-                            decoration: const InputDecoration(
-                                labelText: 'First Name',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'First Name',
+                              border: const OutlineInputBorder(),
+                              errorText: _validateRequired(state.firstName, 'First name'),
+                            ),
                             onChanged: cubit.updateFirstName,
                           ),
                         ),
@@ -113,9 +216,11 @@ class CreateTeamScreen extends StatelessWidget {
                         Expanded(
                           child: TextFormField(
                             initialValue: state.lastName,
-                            decoration: const InputDecoration(
-                                labelText: 'Last Name',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Last Name',
+                              border: const OutlineInputBorder(),
+                              errorText: _validateRequired(state.lastName, 'Last name'),
+                            ),
                             onChanged: cubit.updateLastName,
                           ),
                         ),
@@ -124,17 +229,23 @@ class CreateTeamScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: state.employeeId,
-                      decoration: const InputDecoration(
-                          labelText: 'Employee ID',
-                          border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Employee ID',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.employeeId, 'Employee ID'),
+                      ),
                       onChanged: cubit.updateEmployeeId,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: state.email,
-                      decoration: const InputDecoration(
-                          labelText: 'Email ID', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Email ID',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateEmail(state.email),
+                      ),
                       onChanged: cubit.updateEmail,
+                      keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -142,19 +253,24 @@ class CreateTeamScreen extends StatelessWidget {
                         Expanded(
                           child: TextFormField(
                             initialValue: state.contactNumber,
-                            decoration: const InputDecoration(
-                                labelText: 'Contact Number',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Contact Number',
+                              border: const OutlineInputBorder(),
+                              errorText: _validatePhone(state.contactNumber),
+                            ),
                             onChanged: cubit.updateContactNumber,
+                            keyboardType: TextInputType.phone,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextFormField(
                             initialValue: state.gender,
-                            decoration: const InputDecoration(
-                                labelText: 'Gender',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Gender',
+                              border: const OutlineInputBorder(),
+                              errorText: _validateRequired(state.gender, 'Gender'),
+                            ),
                             onChanged: cubit.updateGender,
                           ),
                         ),
@@ -163,8 +279,11 @@ class CreateTeamScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: state.username,
-                      decoration: const InputDecoration(
-                          labelText: 'Username', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Username',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.username, 'Username'),
+                      ),
                       onChanged: cubit.updateUsername,
                     ),
                     Row(
@@ -179,8 +298,11 @@ class CreateTeamScreen extends StatelessWidget {
                     ),
                     TextFormField(
                       initialValue: state.password,
-                      decoration: const InputDecoration(
-                          labelText: 'Password', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: const OutlineInputBorder(),
+                        errorText: _validatePassword(state.password),
+                      ),
                       obscureText: true,
                       onChanged: cubit.updatePassword,
                     ),
@@ -204,6 +326,7 @@ class CreateTeamScreen extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'Date Of Birth',
                         border: const OutlineInputBorder(),
+                        errorText: state.dob == null ? 'Date of birth is required' : null,
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.calendar_today,
                               color: Colors.teal),
@@ -226,9 +349,11 @@ class CreateTeamScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: state.emergencyName,
-                      decoration: const InputDecoration(
-                          labelText: 'Person Name',
-                          border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Person Name',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.emergencyName, 'Emergency contact name'),
+                      ),
                       onChanged: cubit.updateEmergencyName,
                     ),
                     const SizedBox(height: 12),
@@ -237,19 +362,24 @@ class CreateTeamScreen extends StatelessWidget {
                         Expanded(
                           child: TextFormField(
                             initialValue: state.emergencyContact,
-                            decoration: const InputDecoration(
-                                labelText: 'Contact Number',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Contact Number',
+                              border: const OutlineInputBorder(),
+                              errorText: _validatePhone(state.emergencyContact),
+                            ),
                             onChanged: cubit.updateEmergencyContact,
+                            keyboardType: TextInputType.phone,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextFormField(
                             initialValue: state.emergencyRelation,
-                            decoration: const InputDecoration(
-                                labelText: 'Relation',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Relation',
+                              border: const OutlineInputBorder(),
+                              errorText: _validateRequired(state.emergencyRelation, 'Emergency relation'),
+                            ),
                             onChanged: cubit.updateEmergencyRelation,
                           ),
                         ),
@@ -260,13 +390,13 @@ class CreateTeamScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
+                          backgroundColor: _validatePage0(state) ? Colors.teal : Colors.grey,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        onPressed: () {
+                        onPressed: _validatePage0(state) ? () {
                           cubit.updatePageIndex(1);
-                        },
+                        } : null,
                         child: const Text('NEXT'),
                       ),
                     ),
@@ -277,25 +407,31 @@ class CreateTeamScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     TextFormField(
                       initialValue: state.address,
-                      decoration: const InputDecoration(
-                          labelText: 'Address', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Address',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.address, 'Address'),
+                      ),
                       onChanged: cubit.updateAddress,
+                      maxLines: 3,
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
                           child: DropdownButtonFormField<int>(
-                            decoration: const InputDecoration(
-                                labelText: 'Country',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Country',
+                              border: const OutlineInputBorder(),
+                              errorText: state.countryId == null ? 'Country is required' : null,
+                            ),
                             value: state.countryId,
                             hint: const Text('Country'),
                             items: countryList
                                 .map((country) => DropdownMenuItem<int>(
-                                      value: country['id'] as int,
-                                      child: Text(country['name'] as String),
-                                    ))
+                              value: country['id'] as int,
+                              child: Text(country['name'] as String),
+                            ))
                                 .toList(),
                             onChanged: cubit.updateCountryId,
                           ),
@@ -303,16 +439,18 @@ class CreateTeamScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: DropdownButtonFormField<int>(
-                            decoration: const InputDecoration(
-                                labelText: 'State',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'State',
+                              border: const OutlineInputBorder(),
+                              errorText: state.stateId == null ? 'State is required' : null,
+                            ),
                             value: state.stateId,
                             hint: const Text('State'),
                             items: stateList
                                 .map((state) => DropdownMenuItem<int>(
-                                      value: state['id'] as int,
-                                      child: Text(state['name'] as String),
-                                    ))
+                              value: state['id'] as int,
+                              child: Text(state['name'] as String),
+                            ))
                                 .toList(),
                             onChanged: cubit.updateStateId,
                           ),
@@ -324,16 +462,18 @@ class CreateTeamScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: DropdownButtonFormField<int>(
-                            decoration: const InputDecoration(
-                                labelText: 'City',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'City',
+                              border: const OutlineInputBorder(),
+                              errorText: state.cityId == null ? 'City is required' : null,
+                            ),
                             value: state.cityId,
                             hint: const Text('City'),
                             items: cityList
                                 .map((city) => DropdownMenuItem<int>(
-                                      value: city['id'] as int,
-                                      child: Text(city['name'] as String),
-                                    ))
+                              value: city['id'] as int,
+                              child: Text(city['name'] as String),
+                            ))
                                 .toList(),
                             onChanged: cubit.updateCityId,
                           ),
@@ -342,10 +482,13 @@ class CreateTeamScreen extends StatelessWidget {
                         Expanded(
                           child: TextFormField(
                             initialValue: state.pinCode,
-                            decoration: const InputDecoration(
-                                labelText: 'Pin Code',
-                                border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Pin Code',
+                              border: const OutlineInputBorder(),
+                              errorText: _validatePinCode(state.pinCode),
+                            ),
                             onChanged: cubit.updatePinCode,
+                            keyboardType: TextInputType.number,
                           ),
                         ),
                       ],
@@ -353,26 +496,33 @@ class CreateTeamScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: state.designation,
-                      decoration: const InputDecoration(
-                          labelText: 'Designation',
-                          border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Designation',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.designation, 'Designation'),
+                      ),
                       onChanged: cubit.updateDesignation,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: state.department,
-                      decoration: const InputDecoration(
-                          labelText: 'Department',
-                          border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Department',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.department, 'Department'),
+                      ),
                       onChanged: cubit.updateDepartment,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: state.totalAssignedLeave,
-                      decoration: const InputDecoration(
-                          labelText: 'Total Assigned Leave',
-                          border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Total Assigned Leave',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateNumeric(state.totalAssignedLeave, 'Total assigned leave'),
+                      ),
                       onChanged: cubit.updateTotalAssignedLeave,
+                      keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -396,13 +546,13 @@ class CreateTeamScreen extends StatelessWidget {
                       readOnly: true,
                       controller: TextEditingController(
                           text: state.uploadFileName ?? ''),
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Upload File',
-                        border: const OutlineInputBorder(),
+                        border: OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon:
-                              const Icon(Icons.upload_file, color: Colors.teal),
-                          onPressed: () async {},
+                          Icon(Icons.upload_file, color: Colors.teal),
+                          onPressed: null,
                         ),
                       ),
                     ),
@@ -411,18 +561,17 @@ class CreateTeamScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
+                          backgroundColor: _validatePage1(state) ? Colors.teal : Colors.grey,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        onPressed: () {
+                        onPressed: _validatePage1(state) ? () {
                           cubit.updatePageIndex(2);
-                          // Handle submit or next
-                        },
+                        } : null,
                         child: const Text('NEXT'),
                       ),
                     ),
-                  ]else if (state.pageIndex == 2) ...[
+                  ] else if (state.pageIndex == 2) ...[
                     const Text('User Profile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -435,6 +584,7 @@ class CreateTeamScreen extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'Joining Date',
                         border: const OutlineInputBorder(),
+                        errorText: state.joiningDate == null ? 'Joining date is required' : null,
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.calendar_today, color: Colors.teal),
                           onPressed: () async {
@@ -451,16 +601,22 @@ class CreateTeamScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: 'Select Team', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Select Team',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.selectedTeam, 'Team'),
+                      ),
                       value: state.selectedTeam,
                       items: ['Team A', 'Team B'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                       onChanged: cubit.updateSelectedTeam,
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                          labelText: 'Role',
-                          border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Role',
+                        border: const OutlineInputBorder(),
+                        errorText: state.roleId == null ? 'Role is required' : null,
+                      ),
                       value: state.roleId,
                       hint: const Text('Role'),
                       items: roleList
@@ -471,22 +627,24 @@ class CreateTeamScreen extends StatelessWidget {
                           .toList(),
                       onChanged: cubit.updateRoleId,
                     ),
-                    // DropdownButtonFormField<String>(
-                    //   decoration: const InputDecoration(labelText: 'Role', border: OutlineInputBorder()),
-                    //   value: state.role,
-                    //   items: ['Developer', 'Manager'].map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
-                    //   onChanged: cubit.updateRole,
-                    // ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: 'Select Work Region', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Select Work Region',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.workRegion, 'Work region'),
+                      ),
                       value: state.workRegion,
                       items: ['Region 1', 'Region 2'].map((w) => DropdownMenuItem(value: w, child: Text(w))).toList(),
                       onChanged: cubit.updateWorkRegion,
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: 'Select Shift', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        labelText: 'Select Shift',
+                        border: const OutlineInputBorder(),
+                        errorText: _validateRequired(state.shift, 'Shift'),
+                      ),
                       value: state.shift,
                       items: ['Morning', 'Evening'].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                       onChanged: cubit.updateShift,
@@ -500,7 +658,6 @@ class CreateTeamScreen extends StatelessWidget {
                           final imagePath = result.files.single.path!;
                           cubit.updateUploadImagePath(imagePath);
 
-                          // Call API immediately after picking image
                           final repo = UserRepository();
                           try {
                             final response = await repo.uploadImage(imagePath);
@@ -509,7 +666,6 @@ class CreateTeamScreen extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Image uploaded: ${response.data.first.path}')),
                             );
-                            // Optionally, update state with the uploaded URL if needed
                           } catch (e) {
                             print('Image upload failed: $e');
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -522,6 +678,7 @@ class CreateTeamScreen extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'Upload Image',
                         border: const OutlineInputBorder(),
+                        errorText: state.imageId == null ? 'Profile image is required' : null,
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.upload_file, color: Colors.teal),
                           onPressed: () async {
@@ -530,7 +687,6 @@ class CreateTeamScreen extends StatelessWidget {
                               final imagePath = result.files.single.path!;
                               cubit.updateUploadImagePath(imagePath);
 
-                              // Call API immediately after picking image
                               final repo = UserRepository();
                               try {
                                 final response = await repo.uploadImage(imagePath);
@@ -572,64 +728,70 @@ class CreateTeamScreen extends StatelessWidget {
                             child: IconButton(
                               icon: const Icon(Icons.close, color: Colors.teal),
                               onPressed: () {
-                                cubit.updateUploadImagePath(null);} ,
+                                cubit.updateUploadImagePath(null);
+                                cubit.updateImageId(null);
+                              },
                             ),
                           ),
                         ],
                       ),
                     ],
-
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
+                          backgroundColor: _validatePage2(state) ? Colors.teal : Colors.grey,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        onPressed: () async {
-                            final cubit = context.read<CreateTeamCubit>();
-                            final state = cubit.state;
+                        onPressed: _validatePage2(state) ? () async {
+                          final cubit = context.read<CreateTeamCubit>();
+                          final state = cubit.state;
 
-                            final userData = {
-                              "username": state.username,
-                              "password": state.password,
-                              "roleId": state.roleId, // set this from your state or dropdown
-                              "first_name": state.firstName,
-                              "last_name": state.lastName,
-                              "email": state.email,
-                              "mobile": state.contactNumber,
-                              "address": state.address,
-                              "pincode": state.pinCode,
-                              "country": state.countryId,
-                              "stateId": state.stateId,
-                              "cityId": state.cityId,
-                              "departmentId": null, // set this if available
-                              "designationId": null, // set this if available
-                              "joining_date": state.joiningDate?.toIso8601String(),
-                              "gender": state.gender,
-                              "total_leave": int.tryParse(state.totalAssignedLeave ?? '0'),
-                              "image": state.imageId, // or uploaded image URL if available
-                              "dob": state.dob?.toIso8601String(),
-                              "screen_monitoring": false,
-                              "employee_id": state.employeeId,
-                            };
+                          if (!_validatePage0(state) || !_validatePage1(state) || !_validatePage2(state)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please fill all required fields correctly')),
+                            );
+                            return;
+                          }
 
-                            try {
-                              await UserRepository().createUser(userData);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('User created successfully')),
-                              );
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>UserList()));
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Failed to create user: $e')),
-                              );
-                            }
+                          final userData = {
+                            "username": state.username,
+                            "password": state.password,
+                            "roleId": state.roleId,
+                            "first_name": state.firstName,
+                            "last_name": state.lastName,
+                            "email": state.email,
+                            "mobile": state.contactNumber,
+                            "address": state.address,
+                            "pincode": state.pinCode,
+                            "country": state.countryId,
+                            "stateId": state.stateId,
+                            "cityId": state.cityId,
+                            "departmentId": null,
+                            "designationId": null,
+                            "joining_date": state.joiningDate?.toIso8601String(),
+                            "gender": state.gender,
+                            "total_leave": int.tryParse(state.totalAssignedLeave ?? '0'),
+                            "image": state.imageId,
+                            "dob": state.dob?.toIso8601String(),
+                            "screen_monitoring": false,
+                            "employee_id": state.employeeId,
+                          };
 
-                          // Handle submit
-                        },
+                          try {
+                            await UserRepository().createUser(userData);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('User created successfully')),
+                            );
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>const UserList()));
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed to create user: $e')),
+                            );
+                          }
+                        } : null,
                         child: const Text('SUBMIT'),
                       ),
                     ),

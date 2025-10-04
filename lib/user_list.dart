@@ -70,39 +70,58 @@ class _UserListState extends State<UserList> {
                   );
                 }
                 final user = users[index];
-                return Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  child: ListTile(
-                    title: Text(
-                      '${user.profile.firstName} ${user.profile.lastName}',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    subtitle: Text(user.role.name),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          user.isActive ? "Active" : "Inactive",
-                          style: TextStyle(
-                            color: user.isActive ? Colors.green : Colors.red,
-                            fontWeight: FontWeight.bold,
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Color(0xffdbe7f3))),
+                    child: ListTile(
+                      title: Text(
+                        '${user.profile.firstName} ${user.profile.lastName}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      subtitle: Text(user.role.name),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            user.isActive ? "Active" : "Inactive",
+                            style: TextStyle(
+                              color: user.isActive ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        IconButton(
-                          icon:
-                              const Icon(Icons.edit, color: Color(0xff00a0aa)),
-                          onPressed: () {},
-                        ),
-                        IconButton(icon: const Icon(Icons.delete,
-                              color: Color(0xff00a0aa)),
-                          onPressed: () {
-                            context.read<UserListCubit>().deleteUser(user.id);
-                          },
-                        ),
-                      ],
+                          const SizedBox(width: 10),
+                          Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Color(0xffdbe7f3))),
+                            height: 40,
+                            width: 40,
+                            child: IconButton(
+                              icon: const Icon(Icons.edit,
+                                  color: Color(0xff00a0aa)),
+                              onPressed: () {},
+                            ),
+                          ),
+                          SizedBox(width: 5,),
+                          Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Color(0xffdbe7f3))),
+                            height: 40,
+                            width: 40,
+                            child: IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Color(0xff00a0aa)),
+                              onPressed: () {
+                                context
+                                    .read<UserListCubit>()
+                                    .deleteUser(user.id);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
